@@ -53,6 +53,7 @@ const App = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(notesData.length / notesPerPage);
+  
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
