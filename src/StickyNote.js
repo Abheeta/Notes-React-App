@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import './StickyNote.css'; // Import your CSS file
 
-const StickyNote = ({ note, setCurrentPage }) => {
+const StickyNote = ({ note, setCurrentPage,  currentPage }) => {
   const [show, setShow] = useState(false);
   const [editableContent, setEditableContent] = useState(note.content);
   const [lastEditTime, setLastEditTime] = useState(new Date().toLocaleString());
@@ -52,13 +52,26 @@ const StickyNote = ({ note, setCurrentPage }) => {
 
     updateNote({title: createTitle, content: createContent}); 
 
-
-
   }
 
   const handleGridClick = (e) => {
     setShow(true);
     setEditable(false);
+  }
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
+      fetch(`/api/notes/${note._id}`, {
+        method: "DELETE"
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        let pageno = currentPage;
+        setCurrentPage({value: currentPage});
+
+      })
+
   }
 
   const handleContentChange = (e) => {
@@ -72,6 +85,7 @@ const StickyNote = ({ note, setCurrentPage }) => {
          <div className="note-info top-right">
          <button><img width="20" height="20" src="https://img.icons8.com/ios/50/pin--v1.png" alt="pin--v1"/></button>
           <button  onClick={handleEditClick}><img width="20" height="20" src="https://img.icons8.com/ios/50/edit--v1.png" alt="edit--v1"/></button>
+          <button onClick={handleDeleteClick}><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/30/filled-trash.png" alt="filled-trash"/></button>
          <p className="last-edit-time"> {new Date(note.updatedAt).toLocaleDateString()}</p>
           <p className="last-edit-time"> {new Date(note.updatedAt).toLocaleTimeString()}</p>
           
