@@ -1,81 +1,118 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Note from './Notes';
 import Pagination from './Pagination';
 import StickyNote from './StickyNote';
+import Modal from 'react-bootstrap/Modal';
+
 
 
 
 
 const App = () => {
-  const notesData = [
-    {
-      title: "Note 1",
-      content: "This is the content of Note 1."
-    },
-    {
-      title: "Note 2",
-      content: "This is the content of Note 2."
-    },
-    {
-      title: "Note 3",
-      content: "This is the content of Note 3."
-    },
-  
-    {
-      title: "Note 4",
-      content: "This is the content of Note 3."
-    },
-    {
-      title: "Note 5",
-      content: "This is the content of Note 3."
-    },
-    {
-      title: "Note 6",
-      content: "This is the content of Note 3."
-    },
-    {
-      title: "Note 7",
-      content: "This is the content of Note 3."
-    },
-    {
-      title: "Note 8",
-      content: "This is the content of Note 3."
-    },
-    {
-      title: "Note 9",
-      content: "This is the content of Note 3."
-    },
-    // Add more note objects as needed
-  ];
-  const notesPerPage = 6;
 
+
+  const notesPerPage = 6;
+  const [notes, setNotes] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(notesData.length / notesPerPage);
+  const [show, setShow] = useState(false);
+  const [createTitle, setCreateTitle] = useState("");
+  const [createContent, setCreateContent] = useState("");
+
+
+  useEffect(()=>{
+    if(currentPage < 0) setCurrentPage(1);
+    else {
+    fetch(`/api/notes?page=${currentPage}&pinned=${false}`)
+    .then(res => res.json())
+    .then(data =>
+      { 
+        console.log(data);
+        setNotes(data.notes);
+        setTotalPages(data.totalPages);
+      })
+    }
+  }, [currentPage])
+
+  const handleCreate = () => {
+    setCreateContent("");
+    setCreateTitle("");
+    setShow(true);
+
+  }
+
+  const handleSave = () => {
+    fetch("/api/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: createTitle,
+        content: createContent,
+        pinned: false
+      }), 
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log(data);
+      setShow(false);
+      setCurrentPage(-1);
+      
+      
+    })
+    ;
+    
+  };
+
   
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  const indexOfLastNote = currentPage * notesPerPage;
-  const indexOfFirstNote = indexOfLastNote - notesPerPage;
-  const currentNotes = notesData.slice(indexOfFirstNote, indexOfLastNote);
 
   return (
     <div className="container">
       <div className="note-grid">
-        {currentNotes.map((note, index) => (
-          <StickyNote key={index} title={note.title} content={note.content} />
+        {notes.map((note, index) => (
+          <StickyNote key={index} note={note} setCurrentPage={setCurrentPage} />
         ))}
       </div>
+
+      <Modal show={show} onHide={() => setShow(false)} centered backdrop="static">
+        <Modal.Header closeButton>
+          <Modal.Title><input type="text" value={createTitle} onChange={(e) => setCreateTitle(e.target.value)} /></Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <textarea
+            className="editable-content"
+            value={createContent}
+            onChange={(e) => setCreateContent(e.target.value)}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <button className="btn btn-primary" onClick={handleSave}>
+            Save
+          </button>
+        </Modal.Footer>
+      </Modal>
+
+
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
+
+
+
+      <button onClick={() => handleCreate()} >Create</button>
     </div>
+
+
   );
 };
 
