@@ -4,11 +4,11 @@ import './StickyNote.css'; // Import your CSS file
 
 const StickyNote = ({ note, setCurrentPage,  currentPage }) => {
   const [show, setShow] = useState(false);
-  const [editableContent, setEditableContent] = useState(note.content);
+  const [editableContent, setEditableContent] = useState(note.content || "");
   const [lastEditTime, setLastEditTime] = useState(new Date().toLocaleString());
-  const [originalContent, setOriginalContent] = useState(note.content);
+  const [originalContent, setOriginalContent] = useState(note.content || "");
   const [createTitle, setCreateTitle] = useState(note.title);
-  const [createContent, setCreateContent] = useState(note.content);
+  const [createContent, setCreateContent] = useState(note.content || "");
   const [isHovered, setIsHovered] = useState(false);
   const [editable, setEditable] = useState(false);
   

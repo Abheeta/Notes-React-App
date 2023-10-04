@@ -8,93 +8,113 @@ import Modal from 'react-bootstrap/Modal';
 
 
 
+import './StickyNote.css'; // Import your CSS file
 
-
-const App = () => {
-
-
-  const notesPerPage = 6;
-  const [notes, setNotes] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+const PinnedNote = ({ pinnedNote, psetCurrentPage,  pcurrentPage }) => {
   const [show, setShow] = useState(false);
-  const [createTitle, setCreateTitle] = useState("");
-  const [createContent, setCreateContent] = useState("");
-
-
-  useEffect(()=>{
-    if(typeof currentPage!=="number"){
-      setCurrentPage(currentPage.value);
-    }
-    else if(currentPage < 0) setCurrentPage(1);
-    else {
-    fetch(`/api/notes?page=${currentPage}&pinned=${false}`)
-    .then(res => res.json())
-    .then(data =>
-      { 
-        console.log(data);
-        setNotes(data.notes);
-        setTotalPages(data.totalPages);
-      })
-    }
-  }, [currentPage])
-
-  const handleCreate = () => {
-    setCreateContent("");
-    setCreateTitle("");
+  const [editableContent, setEditableContent] = useState(pinnedNote.content);
+  const [lastEditTime, setLastEditTime] = useState(new Date().toLocaleString());
+  const [originalContent, setOriginalContent] = useState(pinnedNote.content);
+  const [createTitle, setCreateTitle] = useState(pinnedNote.title);
+  const [createContent, setCreateContent] = useState(pinnedNote.content);
+  const [isHovered, setIsHovered] = useState(false);
+  const [editable, setEditable] = useState(false);
+  
+  const handleEditClick = (e) => {
+    e.stopPropagation();
     setShow(true);
+    setEditable(true);
+    console.log("Edit");
+  };
+
+
+  const handleClose = () => {
+    setShow(false);
+    if (originalContent !== editableContent) {
+        // Update the last edit time only if the content has changed
+        setOriginalContent(editableContent); // Update the originalContent on modal close
+      setLastEditTime(new Date().toLocaleString());
+
+      }
+  };
+
+  const updateNote = (update) => {
+      fetch(`/api/notes/${pinnedNote._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(update), 
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        setShow(false);
+        psetCurrentPage(-1);
+  
+      })
+      ;
+    
+  }
+  const handleSave = () => {
+
+    updateNote({title: createTitle, content: createContent}); 
 
   }
 
-  const handleSave = () => {
-    fetch("/api/notes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: createTitle,
-        content: createContent,
-        pinned: false
-      }), 
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log(data);
-      setShow(false);
-      setCurrentPage(-1);
-      
-      
-    })
-    ;
-    
+  const handleGridClick = (e) => {
+    setShow(true);
+    setEditable(false);
+  }
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
+      fetch(`/api/notes/${pinnedNote._id}`, {
+        method: "DELETE"
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        let pageno = pcurrentPage;
+        psetCurrentPage({value: pcurrentPage});
+
+      })
+
+  }
+
+  const handleContentChange = (e) => {
+    setEditableContent(e.target.value);
   };
-
-  
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
 
   return (
-    <div className="container">
-      <div className="note-grid">
-        {notes.map((note, index) => (
-          <StickyNote key={index} note={note} setCurrentPage={setCurrentPage} currentPage={currentPage} />
-        ))}
+    <>
+      <div className="note" onClick={(e) => handleGridClick(e)}>
+         {/* Date and last edit time */}
+         <div className="note-info top-right">
+         <button><img width="20" height="20" src="https://img.icons8.com/ios/50/pin--v1.png" alt="pin--v1"/></button>
+          <button  onClick={handleEditClick}><img width="20" height="20" src="https://img.icons8.com/ios/50/edit--v1.png" alt="edit--v1"/></button>
+          <button onClick={handleDeleteClick}><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/30/filled-trash.png" alt="filled-trash"/></button>
+         <p className="last-edit-time"> {new Date(pinnedNote.updatedAt).toLocaleDateString()}</p>
+          <p className="last-edit-time"> {new Date(pinnedNote.updatedAt).toLocaleTimeString()}</p>
+          
+          {/* <p className="note-date">{new Date().toLocaleString()}</p> */}
+        </div>
+        <h3>{pinnedNote.title}</h3>
+        <p>{pinnedNote.content}</p>
       </div>
 
-      <Modal show={show} onHide={() => setShow(false)} centered backdrop="static">
+      <Modal show={show} onHide={handleClose} centered backdrop="static">
         <Modal.Header closeButton>
-          <Modal.Title><input type="text" value={createTitle} onChange={(e) => setCreateTitle(e.target.value)} /></Modal.Title>
+          <Modal.Title>{editable ? (<input type="text" value={createTitle} onChange={(e) => setCreateTitle(e.target.value)} />) : (<b>{createTitle}</b>)}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {editable ? (
           <textarea
             className="editable-content"
             value={createContent}
             onChange={(e) => setCreateContent(e.target.value)}
           />
+          ) : (<p>{createContent}</p>)}
         </Modal.Body>
         <Modal.Footer>
           <button className="btn btn-primary" onClick={handleSave}>
@@ -102,21 +122,8 @@ const App = () => {
           </button>
         </Modal.Footer>
       </Modal>
-
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
-
-
-
-      <button onClick={() => handleCreate()} >Create</button>
-    </div>
-
-
+    </>
   );
 };
 
-export default App;
+export default StickyNote;

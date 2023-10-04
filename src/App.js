@@ -5,6 +5,7 @@ import Note from './Notes';
 import Pagination from './Pagination';
 import StickyNote from './StickyNote';
 import Modal from 'react-bootstrap/Modal';
+import PinnedNote from './PinnedNotes';
 
 
 
@@ -21,6 +22,29 @@ const App = () => {
   const [createTitle, setCreateTitle] = useState("");
   const [createContent, setCreateContent] = useState("");
 
+  const [pinnedNotes, setPinnedNotes] = useState([]);
+  const [ptotalPages, psetTotalPages] = useState(0);
+  const [pcurrentPage, psetCurrentPage] = useState(1);
+  const [pshow, psetShow] = useState(false);
+
+
+  useEffect(()=>{
+    if(typeof pcurrentPage!=="number"){
+      psetCurrentPage(pcurrentPage.value);
+    }
+    else if(pcurrentPage < 0) psetCurrentPage(1);
+    else {
+    fetch(`/api/notes?page=${pcurrentPage}&pinned=${true}`)
+    .then(res => res.json())
+    .then(data =>
+      { 
+        console.log(data);
+        setPinnedNotes(data.notes);
+        psetTotalPages(data.totalPages);
+      })
+    }
+
+  }, [pcurrentPage])
 
   useEffect(()=>{
     if(typeof currentPage!=="number"){
@@ -80,9 +104,16 @@ const App = () => {
   return (
     <div className="container">
       <div className="note-grid">
+        
         {notes.map((note, index) => (
           <StickyNote key={index} note={note} setCurrentPage={setCurrentPage} currentPage={currentPage} />
         ))}
+
+{/* 
+         {pinnedNotes.map((pinnedNote, index) => (
+            <PinnedNote key={index} pinnedNote = {pinnedNote} psetCurrentPage = {psetCurrentPage} pcurrentPage = {pcurrentPage} />
+          ))
+        } */}
       </div>
 
       <Modal show={show} onHide={() => setShow(false)} centered backdrop="static">
