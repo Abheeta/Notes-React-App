@@ -26,6 +26,8 @@ const App = () => {
   const [ptotalPages, psetTotalPages] = useState(0);
   const [pcurrentPage, psetCurrentPage] = useState(1);
   const [pshow, psetShow] = useState(false);
+  const [count, setCount] = useState(0);
+  const [pcount, psetCount] = useState(0);
 
 
   useEffect(()=>{
@@ -41,6 +43,7 @@ const App = () => {
         console.log(data);
         setPinnedNotes(data.notes);
         psetTotalPages(data.totalPages);
+        psetCount(data.count);
       })
     }
 
@@ -59,6 +62,8 @@ const App = () => {
         console.log(data);
         setNotes(data.notes);
         setTotalPages(data.totalPages);
+        setCount(data.count);
+
       })
     }
   }, [currentPage])
@@ -99,6 +104,10 @@ const App = () => {
     setCurrentPage(page);
   };
 
+  const phandlePageChange = (page) => {
+    psetCurrentPage(page);
+  };
+
 
   return (
     <div className="container">
@@ -108,7 +117,13 @@ const App = () => {
             <PinnedNote key={index} pinnedNote = {pinnedNote} psetCurrentPage = {psetCurrentPage} pcurrentPage = {pcurrentPage} setCurrentPage={setCurrentPage} />
           ))
         } 
-
+              <Pagination
+        currentPage={pcurrentPage}
+        totalPages={ptotalPages}
+        onPageChange={phandlePageChange}
+        
+      />
+      <span>{pcurrentPage} of {ptotalPages} {psetCount}</span>
         <div>----------------------------------------------------------------------------------------</div>
         
         {notes.map((note, index) => (
@@ -141,6 +156,8 @@ const App = () => {
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
+            <span>{currentPage} of {totalPages}</span>
+
 
 
 
