@@ -16,7 +16,7 @@ app.use("/api/notes", router);
 app.listen(8000, () => {
     console.log("server is running on port 8000");
 
-    mongoose.connect(`${process.env.MONGO_URI || "mongodb://localhost:27017/Notes"}`);
+    mongoose.connect(`${process.env.MONGO_URI || "mongodb+srv://abitab56:BreadMould12!@cluster0.awo2daj.mongodb.net/?retryWrites=true&w=majority/Notes"}`);
 })
 
 
