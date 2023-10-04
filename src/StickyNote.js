@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import './StickyNote.css'; // Import your CSS file
 
-const StickyNote = ({ note, setCurrentPage,  currentPage }) => {
+const StickyNote = ({ note, setCurrentPage,  currentPage, psetCurrentPage }) => {
   const [show, setShow] = useState(false);
   const [editableContent, setEditableContent] = useState(note.content || "");
   const [lastEditTime, setLastEditTime] = useState(new Date().toLocaleString());
@@ -11,6 +11,13 @@ const StickyNote = ({ note, setCurrentPage,  currentPage }) => {
   const [createContent, setCreateContent] = useState(note.content || "");
   const [isHovered, setIsHovered] = useState(false);
   const [editable, setEditable] = useState(false);
+  
+  const handlePinClick = (e) => {
+    e.stopPropagation();
+    updateNote({pinned: true}); 
+    
+
+  }
   
   const handleEditClick = (e) => {
     e.stopPropagation();
@@ -41,8 +48,15 @@ const StickyNote = ({ note, setCurrentPage,  currentPage }) => {
       .then(res => res.json())
       .then(data => {
         console.log(data);
-        setShow(false);
-        setCurrentPage(-1);
+        if(update.pinned){
+          psetCurrentPage(-1);
+          setCurrentPage({value: currentPage});
+        } else {
+          setShow(false);
+          setCurrentPage(-1);
+
+        }
+       
   
       })
       ;
@@ -83,7 +97,7 @@ const StickyNote = ({ note, setCurrentPage,  currentPage }) => {
       <div className="note" onClick={(e) => handleGridClick(e)}>
          {/* Date and last edit time */}
          <div className="note-info top-right">
-         <button><img width="20" height="20" src="https://img.icons8.com/ios/50/pin--v1.png" alt="pin--v1"/></button>
+         <button onClick={handlePinClick}><img width="20" height="20" src="https://img.icons8.com/ios/50/pin--v1.png" alt="pin--v1"/></button>
           <button  onClick={handleEditClick}><img width="20" height="20" src="https://img.icons8.com/ios/50/edit--v1.png" alt="edit--v1"/></button>
           <button onClick={handleDeleteClick}><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/30/filled-trash.png" alt="filled-trash"/></button>
          <p className="last-edit-time"> {new Date(note.updatedAt).toLocaleDateString()}</p>

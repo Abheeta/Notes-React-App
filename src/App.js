@@ -94,7 +94,6 @@ const App = () => {
     
   };
 
-  
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -105,15 +104,17 @@ const App = () => {
     <div className="container">
       <div className="note-grid">
         
-        {notes.map((note, index) => (
-          <StickyNote key={index} note={note} setCurrentPage={setCurrentPage} currentPage={currentPage} />
-        ))}
-
-{/* 
-         {pinnedNotes.map((pinnedNote, index) => (
-            <PinnedNote key={index} pinnedNote = {pinnedNote} psetCurrentPage = {psetCurrentPage} pcurrentPage = {pcurrentPage} />
+      {pinnedNotes.map((pinnedNote, index) => (
+            <PinnedNote key={index} pinnedNote = {pinnedNote} psetCurrentPage = {psetCurrentPage} pcurrentPage = {pcurrentPage} setCurrentPage={setCurrentPage} />
           ))
-        } */}
+        } 
+
+        <div>----------------------------------------------------------------------------------------</div>
+        
+        {notes.map((note, index) => (
+          <StickyNote key={index} note={note} setCurrentPage={setCurrentPage} currentPage={currentPage} psetCurrentPage  = {psetCurrentPage}/>
+        ))}
+      
       </div>
 
       <Modal show={show} onHide={() => setShow(false)} centered backdrop="static">

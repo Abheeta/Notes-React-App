@@ -10,7 +10,7 @@ import Modal from 'react-bootstrap/Modal';
 
 import './StickyNote.css'; // Import your CSS file
 
-const PinnedNote = ({ pinnedNote, psetCurrentPage,  pcurrentPage }) => {
+const PinnedNote = ({ pinnedNote, psetCurrentPage,  pcurrentPage, setCurrentPage }) => {
   const [show, setShow] = useState(false);
   const [editableContent, setEditableContent] = useState(pinnedNote.content);
   const [lastEditTime, setLastEditTime] = useState(new Date().toLocaleString());
@@ -27,6 +27,12 @@ const PinnedNote = ({ pinnedNote, psetCurrentPage,  pcurrentPage }) => {
     console.log("Edit");
   };
 
+  const handleUnpinClick = (e) => {
+    e.stopPropagation();
+    updateNote({pinned: false}); 
+    
+
+  }
 
   const handleClose = () => {
     setShow(false);
@@ -49,9 +55,20 @@ const PinnedNote = ({ pinnedNote, psetCurrentPage,  pcurrentPage }) => {
       .then(res => res.json())
       .then(data => {
         console.log(data);
-        setShow(false);
-        psetCurrentPage(-1);
-  
+
+        if(update.title){
+
+          setShow(false);
+          setCurrentPage(-1);
+          
+        } else {
+
+          psetCurrentPage(-1);
+          setCurrentPage({value: pcurrentPage});
+          
+
+        }
+        
       })
       ;
     
@@ -91,7 +108,7 @@ const PinnedNote = ({ pinnedNote, psetCurrentPage,  pcurrentPage }) => {
       <div className="note" onClick={(e) => handleGridClick(e)}>
          {/* Date and last edit time */}
          <div className="note-info top-right">
-         <button><img width="20" height="20" src="https://img.icons8.com/ios/50/pin--v1.png" alt="pin--v1"/></button>
+         <button onClick={handleUnpinClick}><img width="20" height="20" src="https://img.icons8.com/ios/50/pin--v1.png" alt="pin--v1"/></button>
           <button  onClick={handleEditClick}><img width="20" height="20" src="https://img.icons8.com/ios/50/edit--v1.png" alt="edit--v1"/></button>
           <button onClick={handleDeleteClick}><img width="20" height="20" src="https://img.icons8.com/ios-glyphs/30/filled-trash.png" alt="filled-trash"/></button>
          <p className="last-edit-time"> {new Date(pinnedNote.updatedAt).toLocaleDateString()}</p>
@@ -126,4 +143,4 @@ const PinnedNote = ({ pinnedNote, psetCurrentPage,  pcurrentPage }) => {
   );
 };
 
-export default StickyNote;
+export default PinnedNote;
