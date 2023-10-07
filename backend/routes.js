@@ -9,7 +9,7 @@ router.post("/", async (req, res) => {
     try {
         let note = req.body;
         const result = await Note.create(note);
-        console.log("Post request received");
+        console.log("Post request received!!!!!!!!!!!");
         return res.json({"Success": result})
     }
     catch(err) {
