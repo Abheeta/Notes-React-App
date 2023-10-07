@@ -4,9 +4,12 @@ const Note = require("./model");
 
 router.post("/", async (req, res) => {
 
+    
+
     try {
         let note = req.body;
         const result = await Note.create(note);
+        console.log("Post request received");
         return res.json({"Success": result})
     }
     catch(err) {
@@ -18,7 +21,6 @@ router.post("/", async (req, res) => {
 router.get("/", async(req, res) => {
 
     const { page = 1, limit = 6, pinned = false } = req.query;
-
 
     try {
 
